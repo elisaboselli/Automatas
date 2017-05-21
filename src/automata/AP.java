@@ -30,8 +30,11 @@ public abstract class AP {
 
 
     public static State getElemFromSet(Set<State> q,State o){
-		//TODO this method have to be implemented.
-    	return null;
+		//TODO ASK
+			if(q.contains(o)){
+				return o;
+			}
+			return null;
      }
 
     public Set<State> final_states(){
@@ -106,15 +109,6 @@ public abstract class AP {
         } finally {
           br.close();
         }
-			/*digraph{
-inic[shape=point];
-inic->q0;
-q0->q1 [label="a/@/a"];
-q1->q1 [label="a/a/aa"];
-q1->q2 [label="b/a/_"];
-q2->q2 [label="b/b/_"];
-q2[shape=doublecircle];
-}*/
 		}
 
     public final String to_dot(){
