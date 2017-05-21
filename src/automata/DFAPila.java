@@ -9,12 +9,12 @@ public final class DFAPila extends AP{
 
 	private   Object nroStates[] ;
     private Stack<Character> stack; //the stack of the automaton
-    
-    
+
+
     /**
      * Constructor of the class - returns a DFAPila object
      * @param states - states of the DFAPila
-     * @param alphabet - the alphabet of the automaton 
+     * @param alphabet - the alphabet of the automaton
      * @param stackAlphabet - the alphabet of the stack
      * @param transitions - transitions of the automaton
      * @param stackInitial - a Character which represents the initial element of the stack
@@ -30,7 +30,7 @@ public final class DFAPila extends AP{
             Character stackInitial,
             State initial,
             Set<State> final_states)
-            throws IllegalArgumentException 
+            throws IllegalArgumentException
     {
         this.states = states;
         this.alphabet = alphabet;
@@ -43,20 +43,32 @@ public final class DFAPila extends AP{
         this.finalStates = final_states;
         nroStates =  states.toArray();
         stack = new Stack<Character>();
+				//why add?? it should be push, doesn't it?
         stack.add(Joker); //insert the mark in the stack
         if (!rep_ok()){
             throw new  IllegalArgumentException();
         }
         System.out.println("Is a DFA Pila");
     }
-        
-    
-    @Override    
+
+
+    @Override
     public State delta(State from, Character c){
-		//TODO this method have to be implemented
+		//TODO this method have to be implemented7
+			Character top = stack.pop();
+			for (Quintuple transition : transitions){
+					if(transition.first().equals(from) && transition.second().equals(c) && transition.third().equals(top)){
+						System.out.println(transition.toString());
+						for(int i = transition.fourth().length(); i >= 0; i--){
+   						stack.push(transition.fourth().charAt(i));
+						}
+						stack.push(transition.fourth());
+						delta(transition.fifth(),somethingElse);
+					}
+			}
     	return null;
     }
-        
+
     @Override
     public boolean accepts(String string) {
         //TODO this method have to be implemented
@@ -67,6 +79,6 @@ public final class DFAPila extends AP{
         //TODO this method have to be implemented
     	return false;
     }
-    
-	
+
+
 }
