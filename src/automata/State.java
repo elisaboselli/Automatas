@@ -5,8 +5,8 @@ public class State {
 	
 	private String name;
 
-    public State(String name) {
-        name = name;
+    public State(String nm) {
+        name = nm;
     }
 
     public String name() {
