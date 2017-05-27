@@ -9,6 +9,8 @@ public final class DFAPila extends AP {
 
   private Object nroStates[];
   private Stack<Character> stack; // the stack of the automaton
+  private Boolean emptyStackEnd;
+  private State currentState;
 
   /**
    * Constructor of the class - returns a DFAPila object
@@ -54,31 +56,89 @@ public final class DFAPila extends AP {
 
   @Override
   public State delta(State from, Character c) {
-    // TODO this method have to be implemented
-    Character somethingElse = null;
     Character top = stack.pop();
-    for (Quintuple transition : transitions) {
+    for (Quintuple<State, Character, Character, String, State> transition : transitions) {
       if (transition.first().equals(from) && transition.second().equals(c)
-          && transition.third().equals(top)) {
-        System.out.println(transition.toString());
-        for (int i = ((String) transition.fourth()).length(); i >= 0; i--) {
-          stack.push(((String) transition.fourth()).charAt(i));
+          && (transition.third().equals(top) || transition.third().equals('_'))) {
+        System.out.print(transition.toString() + " -> Stack:[");
+        if (!((transition.fourth().charAt(0)) == ((char) Lambda))) {
+          for (int i = (transition.fourth()).length() - 1; i >= 0; i--) {
+            stack.push((transition.fourth()).charAt(i));
+          }
         }
-        delta((State) transition.fifth(), somethingElse);
+        Object[] auxArray = stack.toArray();
+        for (int i = 0; i < auxArray.length; i++) {
+          System.out.print(auxArray[i]);
+          if (i < auxArray.length - 1) {
+            System.out.print(",");
+          }
+        }
+        System.out.println("]");
+        return transition.fifth();
       }
     }
     return null;
   }
 
   @Override
-  public boolean accepts(String string) {
-    // TODO this method have to be implemented
+  public boolean accepts(String string, boolean end) {
+    emptyStackEnd = end;
+    currentState = this.initial;
+    Character currentCharacter;
+    State auxState = null;
+    for (int i = 0; i < string.length(); i++) {
+      currentCharacter = string.charAt(i);
+      auxState = delta(currentState, currentCharacter);
+      if (auxState == null) {
+        return false;
+      }
+      currentState = auxState;
+    }
+    if ((emptyStackEnd && stack.isEmpty()) || (!emptyStackEnd && currentState.inSet(finalStates))) {
+      return true;
+    }
     return false;
   }
 
   public boolean rep_ok() {
     // TODO this method have to be implemented
-    return false;
+    return true;
   }
 
+  public void report() {
+    System.out.println("\n\nDAF Pila:");
+    System.out.println("\nInitial state: " + initial.toString());
+    System.out.print("\nFinal states: ");
+    for (State s : finalStates) {
+      System.out.print(s.toString() + ',');
+    }
+    System.out.println("\n");
+    System.out.print("All states: ");
+    for (State s : states) {
+      System.out.print(s.toString() + ',');
+    }
+    System.out.println("\n");
+    System.out.print("Alphabet: ");
+    for (Character c : alphabet) {
+      System.out.print(c.toString() + ',');
+    }
+    System.out.println("\n");
+    System.out.print("Stack Alphabet: ");
+    for (Character c : stackAlphabet) {
+      System.out.print(c.toString() + ',');
+    }
+    System.out.println("\n");
+    System.out.println("Transitions: ");
+    for (Quintuple<State, Character, Character, String, State> t : transitions) {
+      System.out.println("        " + t.toString());
+    }
+
+    if (finalStates.isEmpty()) {
+      emptyStackEnd = true;
+      System.out.println("\nSe asume que el autómata terminará por pila vacia.");
+    } else {
+      emptyStackEnd = false;
+      System.out.println("\nSe asume que el autómata terminará por estado final.");
+    }
+  }
 }

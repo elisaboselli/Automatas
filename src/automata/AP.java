@@ -1,7 +1,10 @@
 package automata;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
@@ -54,41 +57,73 @@ public abstract class AP {
     return states;
   }
 
-  public DAFPila from_dot(String fileName) {
-    BufferedReader br = new BufferedReader(new FileReader(fileName + ".txt"));
+  public void from_dot(File file) {
+    BufferedReader br = null;
+    try {
+      br = new BufferedReader(new FileReader(file));
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
     try {
       String line = br.readLine();
 
+      String[] aux;
+      String nt;
+      Character tc, tp;
+      Boolean found;
+      State in, fin, from, to;
+      Quintuple<State, Character, Character, String, State> auxTransition;
+
+      Pattern initialState = Pattern.compile("^(inic->).*");
+      Matcher matInitalState;
+
+      Pattern finalState = Pattern.compile("^.*(\\[).*(doublecircle).*");
+      Matcher matFinalState;
+
+      Pattern transition = Pattern.compile("^(q).*(->).*");
+      Matcher matTransition;
+
       while (line != null) {
-        String[] aux;
-        String nt;
-        Character tc, tp;
-        State from, to;
-        Quintuple<State, Character, Character, String, State> auxTransition;
 
-        Pattern initialState = Pattern.compile("^(inic->).*");
-        Matcher matInitalState = initialState.matcher(line);
+        found = false;
 
-        Pattern finalState = Pattern.compile("^.*(\\[).*(doublecircle).*");
-        Matcher matFinalState = finalState.matcher(line);
-
-        Pattern transition = Pattern.compile("^(q).*(->).*");
-        Matcher matTransition = transition.matcher(line);
+        matInitalState = initialState.matcher(line);
 
         if (matInitalState.matches()) {
-          aux = line.split("inic-> | ;");
-          this.initial = new State(aux[0].trim());
-          this.states.add(this.initial);
+          System.out.print("Initial State found: ");
+          aux = line.split("inic->|;");
+          in = new State(aux[1].trim());
+          if (initial == null) {
+            initial = in;
+          }
+          System.out.println(in);
+          if (!in.inSet(states)) {
+            states.add(in);
+          }
         }
+
+        matFinalState = finalState.matcher(line);
 
         if (matFinalState.matches()) {
+          System.out.print("Final State found: ");
           aux = line.split("\\[");
-          this.finalStates.add(new State(aux[0].trim()));
-          this.states.add(new State(aux[0].trim()));
+          fin = new State(aux[0].trim());
+          System.out.println(fin);
+
+          if (!fin.inSet(finalStates)) {
+            finalStates.add(fin);
+          }
+          if (!fin.inSet(states)) {
+            states.add(new State(aux[0].trim()));
+          }
         }
 
+        matTransition = transition.matcher(line);
+
         if (matTransition.matches()) {
-          aux = line.split("-> | \\s |  \" | /");
+
+          System.out.print("Transition found: ");
+          aux = line.split("->|\\s|\"|/");
 
           from = new State(aux[0].trim());
           to = new State(aux[1].trim());
@@ -96,20 +131,32 @@ public abstract class AP {
           tp = aux[4].trim().charAt(0);
           nt = aux[5].trim();
 
-          this.states.add(from);
-          this.states.add(to);
+          if (!from.inSet(states)) {
+            states.add(from);
+          }
+          if (!to.inSet(states)) {
+            states.add(to);
+          }
 
-          auxTransition = new Quintuple(from, tc, tp, nt, to);
-          this.transitions.add(auxTransition);
+          alphabet.add(tc);
+          stackAlphabet.add(tp);
+
+          auxTransition = new Quintuple<State, Character, Character, String, State>(from, tc, tp,
+              nt, to);
+          System.out.println(auxTransition.toString());
+          transitions.add(auxTransition);
 
         }
 
         line = br.readLine();
       }
-
-    } finally {
       br.close();
+
+    } catch (IOException e) {
+      e.printStackTrace();
     }
+
+    stackInitial = '@';
   }
 
   public final String to_dot() {
@@ -121,7 +168,7 @@ public abstract class AP {
     aux = aux + "inic[shape=point];\n" + "inic->" + this.initial.name() + ";\n";
     i = this.transitions.iterator();
     while (i.hasNext()) {
-      Quintuple quintuple = (Quintuple) i.next();
+      Quintuple<State, Character, Character, String, State> quintuple = (Quintuple) i.next();
       aux = aux + quintuple.first().toString() + "->" + quintuple.fifth().toString() + " [label="
           + quotes + quintuple.second().toString() + "/" + quintuple.third() + "/"
           + quintuple.fourth() + quotes + "];\n";
@@ -139,7 +186,7 @@ public abstract class AP {
   /**
    * this methods should be implemented in DFAPila
    */
-  public abstract boolean accepts(String string);
+  public abstract boolean accepts(String string, boolean end);
 
   public abstract Object delta(State from, Character c);
 

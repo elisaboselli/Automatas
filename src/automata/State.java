@@ -1,33 +1,41 @@
 package automata;
 
+import java.util.Set;
+
 public class State {
 
-	
-	private String name;
+  private String name;
 
-    public State(String nm) {
-        name = nm;
-    }
+  public State(String nm) {
+    name = nm;
+  }
 
-    public String name() {
-        return name;
+  public String name() {
+    return name;
+  }
+
+  public boolean equals(Object obj) {
+    if (!(obj instanceof State))
+      return false;
+    if (obj == this)
+      return true;
+    return this.name.equals(((State) obj).name);
+  }
+
+  public String toString() {
+    return name;
+  }
+
+  public void rename(String Newname) {
+    name = Newname;
+  }
+
+  public boolean inSet(Set<State> stateSet) {
+    for (State s : stateSet) {
+      if (s.equals(this)) {
+        return true;
+      }
     }
-   
-    
-    public boolean equals(Object obj) {
-        if (!(obj instanceof State))
-            return false;	
-	if (obj == this)
-            return true;
-	return this.name.equals(((State) obj).name);
-    }
-    
-    public String toString(){
-        return name;
-    }
-    
-    public void rename(String Newname){
-        name= Newname;
-    }
-	
+    return false;
+  }
 }
