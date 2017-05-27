@@ -56,10 +56,13 @@ public final class DFAPila extends AP {
 
   @Override
   public State delta(State from, Character c) {
+    if (stack.isEmpty()) {
+      return null;
+    }
     Character top = stack.pop();
     for (Quintuple<State, Character, Character, String, State> transition : transitions) {
       if (transition.first().equals(from) && transition.second().equals(c)
-          && (transition.third().equals(top) || transition.third().equals('_'))) {
+          && (transition.third().equals(top))) {
         System.out.print(transition.toString() + " -> Stack:[");
         if (!((transition.fourth().charAt(0)) == ((char) Lambda))) {
           for (int i = (transition.fourth()).length() - 1; i >= 0; i--) {
@@ -94,6 +97,23 @@ public final class DFAPila extends AP {
       }
       currentState = auxState;
     }
+
+    Quintuple<State, Character, Character, String, State> est = emptyStackTransition(currentState);
+    while (est != null) {
+      System.out.print(est.toString() + " -> Stack:[");
+      stack.pop();
+      currentState = est.fifth();
+      Object[] auxArray = stack.toArray();
+      for (int i = 0; i < auxArray.length; i++) {
+        System.out.print(auxArray[i]);
+        if (i < auxArray.length - 1) {
+          System.out.print(",");
+        }
+      }
+      System.out.println("]");
+      est = emptyStackTransition(currentState);
+    }
+
     if ((emptyStackEnd && stack.isEmpty()) || (!emptyStackEnd && currentState.inSet(finalStates))) {
       return true;
     }
@@ -101,7 +121,22 @@ public final class DFAPila extends AP {
   }
 
   public boolean rep_ok() {
-    // TODO this method have to be implemented
+    boolean isReachable;
+    for (State s : states) {
+      if (!s.equals(initial)) {
+        isReachable = false;
+        for (Quintuple<State, Character, Character, String, State> transition : transitions) {
+          if (transition.fifth().equals(s)) {
+            isReachable = true;
+            break;
+          }
+        }
+        if (isReachable == false) {
+          System.out.println("State " + s.toString() + " is not reachable.");
+          return false;
+        }
+      }
+    }
     return true;
   }
 
@@ -140,5 +175,14 @@ public final class DFAPila extends AP {
       emptyStackEnd = false;
       System.out.println("\nSe asume que el autómata terminará por estado final.");
     }
+  }
+
+  private Quintuple<State, Character, Character, String, State> emptyStackTransition(State state) {
+    for (Quintuple<State, Character, Character, String, State> transition : transitions) {
+      if (transition.first().equals(state) && transition.third().equals(Joker) && !stack.isEmpty()) {
+        return transition;
+      }
+    }
+    return null;
   }
 }

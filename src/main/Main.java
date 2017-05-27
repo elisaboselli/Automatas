@@ -34,7 +34,7 @@ public class Main {
     DFAPila atm = new DFAPila(states, alphabet, stackAlphabet, transitions, stackInitial, initial,
         finalStates);
     // atm.from_dot(file);
-    atm.from_dot(new File("/tmp/prueba.txt"));
+    atm.from_dot(new File("/tmp/prueba2.txt"));
 
     // atm.report();
 
@@ -45,15 +45,21 @@ public class Main {
     // cad = scan.nextLine();
     // }
 
-    String cad = "acb";
-    Boolean emptyStackEnd = true;
+    String cad = "11+11=1111";
+    Boolean emptyStackEnd = false;
 
     Boolean result = atm.accepts(cad, emptyStackEnd);
 
     if (result) {
-      System.out.println("\n La cadena \"" + cad + "\" fue aceptada por el automata.");
+      System.out.print("\n La cadena \"" + cad + "\" fue aceptada por el automata");
     } else {
-      System.out.println("\n La cadena \"" + cad + "\" no fue aceptada por el automata.");
+      System.out.print("\n La cadena \"" + cad + "\" no fue aceptada por el automata");
+    }
+
+    if (emptyStackEnd) {
+      System.out.println("por pila vacía.");
+    } else {
+      System.out.println("por estado final.");
     }
   }
 }
