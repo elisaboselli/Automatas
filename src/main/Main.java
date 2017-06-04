@@ -7,11 +7,19 @@ import java.util.Set;
 
 import utils.Quintuple;
 import automata.DFAPila;
+import automata.NFAPila;
 import automata.State;
 
 public class Main {
 
+  static boolean deterministic;
+  static boolean emptyStackEnd = true;
+
   public static void main(String[] args) {
+
+    DFAPila dfa = null;
+    NFAPila nfa = null;
+    String str = null;
 
     System.out.println("//--------------------------------------------------//");
     System.out.println("//------------- AUTOMATAS Y LENGUAJES --------------//");
@@ -19,9 +27,53 @@ public class Main {
     System.out.println("//----------------- Elisa Boselli ------------------//");
     System.out.println("//--------------------------------------------------//");
 
-    boolean deterministic;
-    boolean emptyStackEnd = true;
+    int op = displayMenu();
+    while (op != 5) {
+      switch (op) {
+      case 1:
+        deterministic = true;
+        dfa = loadDFAPila();
+      case 2:
+        deterministic = false;
+        nfa = loadNFAPila();
+      case 3:
+        if (deterministic) {
+          dfa.report();
+        } else {
+          nfa.report();
+        }
+      case 4:
+        str = getWord();
+        if (deterministic) {
+          tryDFAPila(dfa, str);
+        } else {
+          tryNFAPila(nfa, str);
+        }
+      }
+      op = displayMenu();
+    }
+  }
 
+  private static int displayMenu() {
+    Scanner scan = new Scanner(System.in);
+    System.out.println("Enter the desired option");
+    System.out.println("1 - Load finite deterministic stack automaton from dot");
+    System.out.println("2 - Load finite non-deterministic stack automaton from grammar");
+    System.out.println("3 - Show current automaton");
+    System.out.println("4 - Try word in the automaton");
+    System.out.println("5 - Exit");
+    System.out.println("\n");
+    int aux = scan.nextInt();
+    while (aux < 0 || aux > 4) {
+      System.out.println("Please enter a valid option");
+      aux = scan.nextInt();
+    }
+    scan.close();
+    return aux;
+  }
+
+  private static DFAPila loadDFAPila() {
+    File file = loadFile();
     State initial = null;
     Character stackInitial = null;
     Set<State> states = new HashSet<State>();
@@ -30,89 +82,96 @@ public class Main {
     Set<Quintuple<State, Character, Character, String, State>> transitions = new HashSet<Quintuple<State, Character, Character, String, State>>();
     Set<State> finalStates = new HashSet<State>();
 
+    DFAPila atm = new DFAPila(states, alphabet, stackAlphabet, transitions, stackInitial, initial,
+        finalStates, deterministic, emptyStackEnd);
+    atm.from_dot(file);
+    if (!atm.rep_ok()) {
+      throw new IllegalArgumentException(
+          "The built automaton does not meet the requested conditions.");
+    }
+    return atm;
+
+  }
+
+  private static NFAPila loadNFAPila() {
+    File file = loadFile();
+    State initial = null;
+    Character stackInitial = null;
+    Set<State> states = new HashSet<State>();
+    Set<Character> alphabet = new HashSet<Character>();
+    Set<Character> stackAlphabet = new HashSet<Character>();
+    Set<Quintuple<State, Character, Character, String, State>> transitions = new HashSet<Quintuple<State, Character, Character, String, State>>();
+    Set<State> finalStates = new HashSet<State>();
+
+    NFAPila atm = new NFAPila(states, alphabet, stackAlphabet, transitions, stackInitial, initial,
+        finalStates, deterministic, emptyStackEnd);
+    atm.from_dot(file);
+    if (!atm.rep_ok()) {
+      throw new IllegalArgumentException(
+          "The built automaton does not meet the requested conditions.");
+    }
+    return atm;
+  }
+
+  private static File loadFile() {
     Scanner scan = new Scanner(System.in);
+    System.out.print("Enter the name of the ");
+    if (deterministic) {
+      System.out.println("automaton dot file");
+    } else {
+      System.out.println("grammar file");
+    }
+    String fileName = scan.nextLine();
+    File file = new File("/tmp/" + fileName + ".txt");
+    while (!file.exists()) {
+      System.out.println("Please enter a valid file name");
+      fileName = scan.nextLine();
+    }
+    scan.close();
+    return file;
+  }
 
-    String option = "2";
-    // System.out.println("\n\nPara cargar un autómata pila deterministico de dot ingrese 1.");
-    // System.out.println("Para cargar una gramatica ingrese 2.");
-    // System.out.println("Para salir ingrese 3.");
-    // String option = scan.nextLine();
-    // while (!option.equals("1") && !option.equals("2") && !option.equals("3")) {
-    // System.out.println("Ingrese una opción válida");
-    // option = scan.nextLine();
-    // }
+  private static String getWord() {
+    Scanner scan = new Scanner(System.in);
+    System.out.println("Enter the string to test");
+    String str = scan.nextLine();
+    while (str.isEmpty()) {
+      System.out.println("Please enter a valid string");
+      str = scan.nextLine();
+    }
+    scan.close();
+    return str;
+  }
 
-    if (option.equals("1")) {
+  private static void tryDFAPila(DFAPila dfa, String str) {
+    Boolean result = dfa.accepts(str);
 
-      deterministic = true;
-
-      System.out.println("Ingrese el nombre del archivo del automata");
-      String fileName = scan.nextLine();
-      File file = new File("/tmp/" + fileName + ".txt");
-      while (!file.exists()) {
-        System.out.println("Ingrese un nombre de archivo correcto");
-        fileName = scan.nextLine();
-      }
-
-      DFAPila atm = new DFAPila(states, alphabet, stackAlphabet, transitions, stackInitial,
-          initial, finalStates, deterministic, emptyStackEnd);
-      atm.from_dot(file);
-      // atm.from_dot(new File("/home/koodu/Elisa/AUTOMATAS/workspace/Automata/prueba.txt"));
-      if (!atm.rep_ok(deterministic, emptyStackEnd)) {
-        throw new IllegalArgumentException(
-            "The built automaton does not meet the requested conditions.");
-      }
-
-      // atm.report();
-
-      System.out.println("Ingrese la cadena a probar");
-      String cad = scan.nextLine();
-      while (cad.isEmpty()) {
-        System.out.println("Ingrese una cadena valida");
-        cad = scan.nextLine();
-      }
-
-      // String cad = "aab";
-      // String cad = "11+11=1111";
-
-      Boolean result = atm.accepts(cad);
-
-      if (result) {
-        System.out.print("\n La cadena \"" + cad + "\" fue aceptada por el automata ");
-      } else {
-        System.out.print("\n La cadena \"" + cad + "\" no fue aceptada por el automata ");
-      }
-
-      if (emptyStackEnd) {
-        System.out.println("por pila vacía.");
-      } else {
-        System.out.println("por estado final.");
-      }
+    if (result) {
+      System.out.print("\n The string \"" + str + "\" was accepted by the automaton ");
+    } else {
+      System.out.print("\n The string \"" + str + "\" was not accepted by the automaton ");
     }
 
-    if (option.equals("2")) {
+    if (emptyStackEnd) {
+      System.out.println("by empty stack.");
+    } else {
+      System.out.println("by final state.");
+    }
+  }
 
-      deterministic = false;
+  private static void tryNFAPila(NFAPila nfa, String str) {
+    Boolean result = nfa.accepts(str);
 
-      // System.out.println("Ingrese el nombre del archivo de la gramática");
-      // String fileName = scan.nextLine();
-      // File file = new File("/tmp/" + fileName + ".txt");
-      // while (!file.exists()) {
-      // System.out.println("Ingrese un nombre de archivo correcto");
-      // fileName = scan.nextLine();
-      // }
-
-      File file = new File("/tmp/pruebaGram.txt");
-      DFAPila atm = new DFAPila(states, alphabet, stackAlphabet, transitions, stackInitial,
-          initial, finalStates, deterministic, emptyStackEnd);
-      atm.from_gram(file);
-      if (!atm.rep_ok(deterministic, emptyStackEnd)) {
-        throw new IllegalArgumentException(
-            "The built automaton does not meet the requested conditions.");
-      }
-      System.out.println(atm.to_dot());
-
+    if (result) {
+      System.out.print("\n The string \"" + str + "\" was accepted by the automaton ");
+    } else {
+      System.out.print("\n The string \"" + str + "\" was not accepted by the automaton ");
     }
 
+    if (emptyStackEnd) {
+      System.out.println("by empty stack.");
+    } else {
+      System.out.println("by final state.");
+    }
   }
 }
