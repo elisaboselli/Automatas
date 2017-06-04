@@ -1,0 +1,10 @@
+repOK -> transiciones sin lambda como caracter (si es determinista y no acepta por pila vacia), transiciones deterministas, no estados inalcanzables.
+
+inicial de pila = Z (Pila vacia, solo queda este caracter.)
+
+a/@/@ -> cambia de estado, consume a de la cadena, y deja la pila como esta (@ significa cualquier elemento del alfabeto de la pila, y puede ser agregado a la misma, y quitado luego sin preguntar. Me inclino por dejar la pila como estaba, es decir, si transition.fourth()==joker y transition.fifth()==joker entonces, se acepta la transicion y se apila lo que se saco con el pop).
+
+lambda=epsilon -> se utilizara, para vaciar la pila (como transition.first() en automatas deterministas), en automatas no deterministas, y para no agregar nada a la pila (transition.fourth()).
+
+
+si es no determinista, se debe modificar el delta (que devuelva un conjunto de estados). 
