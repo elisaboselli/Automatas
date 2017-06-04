@@ -1,0 +1,3 @@
+G:<{E I},{* + ( ) a b 0 1},P,E>
+E -> I | E*E | E+E | (E) 
+I -> a | b | Ia | Ib | I0 | I1

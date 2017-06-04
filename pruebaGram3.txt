@@ -1,0 +1,5 @@
+G:<{$ A B I},{a b},P,$>
+$ -> A | B
+A -> IaI | IaA
+B -> IbI | IbB
+I -> aIbI| bIaI | _
