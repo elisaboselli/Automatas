@@ -75,7 +75,7 @@ public class Main {
       // String cad = "aab";
       // String cad = "11+11=1111";
 
-      Boolean result = atm.accepts(cad, emptyStackEnd);
+      Boolean result = atm.accepts(cad);
 
       if (result) {
         System.out.print("\n La cadena \"" + cad + "\" fue aceptada por el automata ");
