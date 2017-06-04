@@ -33,8 +33,8 @@ public final class DFAPila extends AP {
    */
   public DFAPila(Set<State> states, Set<Character> alphabet, Set<Character> stackAlphabet,
       Set<Quintuple<State, Character, Character, String, State>> transitions,
-      Character stackInitial, State initial, Set<State> final_states)
-      throws IllegalArgumentException {
+      Character stackInitial, State initial, Set<State> final_states, boolean deterministic,
+      boolean emptyStack) throws IllegalArgumentException {
     this.states = states;
     this.alphabet = alphabet;
     this.stackAlphabet = stackAlphabet;
@@ -46,9 +46,8 @@ public final class DFAPila extends AP {
     this.finalStates = final_states;
     nroStates = states.toArray();
     stack = new Stack<Character>();
-    // why add?? it should be push, doesn't it?
-    stack.add(Joker); // insert the mark in the stack
-    if (!rep_ok()) {
+    stack.push(Initial); // insert the mark in the stack
+    if (!rep_ok(deterministic, emptyStack)) {
       throw new IllegalArgumentException();
     }
     System.out.println("Is a DFA Pila");
@@ -60,13 +59,19 @@ public final class DFAPila extends AP {
       return null;
     }
     Character top = stack.pop();
+    Character aux;
     for (Quintuple<State, Character, Character, String, State> transition : transitions) {
       if (transition.first().equals(from) && transition.second().equals(c)
-          && (transition.third().equals(top))) {
+          && ((transition.third().equals(top)) || transition.third().equals(Joker))) {
         System.out.print(transition.toString() + " -> Stack:[");
         if (!((transition.fourth().charAt(0)) == ((char) Lambda))) {
           for (int i = (transition.fourth()).length() - 1; i >= 0; i--) {
-            stack.push((transition.fourth()).charAt(i));
+            aux = transition.fourth().charAt(i);
+            if (Joker.equals(aux)) {
+              stack.push(top);
+            } else {
+              stack.push((transition.fourth()).charAt(i));
+            }
           }
         }
         Object[] auxArray = stack.toArray();
@@ -89,6 +94,7 @@ public final class DFAPila extends AP {
     currentState = this.initial;
     Character currentCharacter;
     State auxState = null;
+    System.out.println("Processing ...");
     for (int i = 0; i < string.length(); i++) {
       currentCharacter = string.charAt(i);
       auxState = delta(currentState, currentCharacter);
@@ -98,29 +104,61 @@ public final class DFAPila extends AP {
       currentState = auxState;
     }
 
-    Quintuple<State, Character, Character, String, State> est = emptyStackTransition(currentState);
-    while (est != null) {
-      System.out.print(est.toString() + " -> Stack:[");
-      stack.pop();
-      currentState = est.fifth();
-      Object[] auxArray = stack.toArray();
-      for (int i = 0; i < auxArray.length; i++) {
-        System.out.print(auxArray[i]);
-        if (i < auxArray.length - 1) {
-          System.out.print(",");
+    if (!stack.peek().equals(Initial)) {
+      System.out.println("Emptying the stack");
+      Quintuple<State, Character, Character, String, State> est = emptyStackTransition(currentState);
+      while (est != null && !stack.peek().equals(Initial)) {
+        System.out.print(est.toString() + " -> Stack:[");
+        stack.pop();
+        currentState = est.fifth();
+        Object[] auxArray = stack.toArray();
+        for (int i = 0; i < auxArray.length; i++) {
+          System.out.print(auxArray[i]);
+          if (i < auxArray.length - 1) {
+            System.out.print(",");
+          }
         }
+        System.out.println("]");
+        est = emptyStackTransition(currentState);
       }
-      System.out.println("]");
-      est = emptyStackTransition(currentState);
     }
 
-    if ((emptyStackEnd && stack.isEmpty()) || (!emptyStackEnd && currentState.inSet(finalStates))) {
+    if ((emptyStackEnd && stack.peek().equals(Initial))
+        || (!emptyStackEnd && currentState.inSet(finalStates))) {
       return true;
     }
     return false;
   }
 
-  public boolean rep_ok() {
+  public boolean rep_ok(boolean deterministic, boolean emptyStack) {
+
+    // If it comes from dot it is supposed to be deterministic.
+    if (deterministic) {
+      for (Quintuple<State, Character, Character, String, State> trans : transitions) {
+
+        // Check that, if it is deterministic and ends by final state, has not spontaneous
+        // transitions
+        if (!emptyStack && trans.second().equals(Lambda)) {
+          System.out
+              .println("A deterministic automaton that ends by final state should not have spontaneous transitions.");
+          System.out.println("Transition found: " + trans.toString());
+          return false;
+        }
+
+        // Check that there are not two transitions that start from the same state, and with the
+        // same current character and top of stack arrive to different states.
+        for (Quintuple<State, Character, Character, String, State> trans2 : transitions) {
+          if ((!trans.equals(trans2)) && trans.firstThreeEquals(trans2)) {
+            System.out.println("The automaton is not deterministic, similar transitions found: ");
+            System.out.println("        " + trans.toString());
+            System.out.println("        " + trans2.toString());
+            return false;
+          }
+        }
+      }
+    }
+
+    // Check that all the states are reachable
     boolean isReachable;
     for (State s : states) {
       if (!s.equals(initial)) {
