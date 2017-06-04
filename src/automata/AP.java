@@ -280,7 +280,7 @@ public abstract class AP {
   /**
    * this methods should be implemented in DFAPila
    */
-  public abstract boolean accepts(String string, boolean end);
+  public abstract boolean accepts(String string);
 
   public abstract Object delta(State from, Character c);
 
