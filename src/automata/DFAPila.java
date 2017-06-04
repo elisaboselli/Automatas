@@ -7,8 +7,7 @@ import utils.Quintuple;
 
 public final class DFAPila extends AP {
 
-  private Object nroStates[];
-  private Stack<Character> stack; // the stack of the automaton
+  // private Stack<Character> stack; // the stack of the automaton
   private Boolean emptyStackEnd;
   private Boolean isDeterministic;
   private State currentState;
@@ -45,12 +44,11 @@ public final class DFAPila extends AP {
     this.stackInitial = stackInitial;
     this.initial = initial;
     this.finalStates = final_states;
-    nroStates = states.toArray();
     stack = new Stack<Character>();
     stack.push(Initial); // insert the mark in the stack
     isDeterministic = deterministic;
     emptyStackEnd = emptyStack;
-    if (!rep_ok(deterministic, emptyStack)) {
+    if (!rep_ok()) {
       throw new IllegalArgumentException();
     }
     System.out.println("Is a DFA Pila");
@@ -132,15 +130,15 @@ public final class DFAPila extends AP {
     return false;
   }
 
-  public boolean rep_ok(boolean deterministic, boolean emptyStack) {
+  public boolean rep_ok() {
 
     // If it comes from dot it is supposed to be deterministic.
-    if (deterministic) {
+    if (isDeterministic) {
       for (Quintuple<State, Character, Character, String, State> trans : transitions) {
 
         // Check that, if it is deterministic and ends by final state, has not spontaneous
         // transitions
-        if (!emptyStack && trans.second().equals(Lambda)) {
+        if (!emptyStackEnd && trans.second().equals(Lambda)) {
           System.out
               .println("A deterministic automaton that ends by final state should not have spontaneous transitions.");
           System.out.println("Transition found: " + trans.toString());
