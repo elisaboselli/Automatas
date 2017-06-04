@@ -155,8 +155,8 @@ public abstract class AP {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
-    stackInitial = '@';
+    stackInitial = Initial;
+    System.out.println("\n");
   }
 
   public final String to_dot() {
@@ -181,6 +181,100 @@ public abstract class AP {
     }
     aux = aux + "}";
     return aux;
+  }
+
+  public void from_gram(File file) {
+    BufferedReader br = null;
+    try {
+      br = new BufferedReader(new FileReader(file));
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
+    try {
+      String line = br.readLine();
+
+      String[] aux;
+      Quintuple<State, Character, Character, String, State> auxTransition;
+
+      Pattern grammarDefinition = Pattern.compile("^[A-Z](\\s)*:(\\s)*(\\<.*\\>).*");
+      Matcher matGrammatDefinition;
+
+      Pattern production = Pattern.compile("^[A-Z]+(\\s)*(->).*");
+      Matcher matProduction;
+
+      while (line != null) {
+
+        matGrammatDefinition = grammarDefinition.matcher(line);
+        if (matGrammatDefinition.matches()) {
+          System.out.print("Grammar definition found: \n");
+          aux = line.split(":|<|>|,|\\{|\\}");
+
+          String[] noTerminals = aux[3].split("\\s");
+          for (int i = 0; i < noTerminals.length; i++) {
+            stackAlphabet.add(noTerminals[i].trim().charAt(0));
+          }
+
+          String[] terminals = aux[6].split("\\s");
+          for (int i = 0; i < terminals.length; i++) {
+            alphabet.add(terminals[i].trim().charAt(0));
+            stackAlphabet.add(terminals[i].trim().charAt(0));
+          }
+
+          stackInitial = aux[9].trim().charAt(0);
+          stackAlphabet.add(stackInitial);
+
+          initial = new State("Q");
+          states.add(initial);
+          auxTransition = new Quintuple<State, Character, Character, String, State>(initial,
+              Lambda, stackInitial, initial.toString() + stackInitial, initial);
+
+          System.out.print("    Alphabet: ");
+          for (Character c : alphabet) {
+            System.out.print(c + " ");
+          }
+
+          System.out.print("\n    Stack Alphabet: ");
+          for (Character c : stackAlphabet) {
+            System.out.print(c + " ");
+          }
+
+          System.out.println("");
+
+          for (Character c : alphabet) {
+            auxTransition = new Quintuple<State, Character, Character, String, State>(initial, c,
+                c, Lambda.toString(), initial);
+            transitions.add(auxTransition);
+            System.out.println("Transition generated: " + auxTransition.toString());
+          }
+        }
+
+        matProduction = production.matcher(line);
+
+        if (matProduction.matches()) {
+
+          System.out.print("Production found: \n");
+          aux = line.split("->|\\|");
+
+          for (int i = 1; i < aux.length; i++) {
+
+            auxTransition = new Quintuple<State, Character, Character, String, State>(initial,
+                Lambda, aux[0].trim().charAt(0), aux[i], initial);
+            transitions.add(auxTransition);
+            System.out.println("        " + auxTransition.toString());
+
+          }
+
+        }
+
+        line = br.readLine();
+      }
+      br.close();
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    stackInitial = Initial;
+    System.out.println("\n");
   }
 
   /**
