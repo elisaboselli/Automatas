@@ -33,14 +33,6 @@ public abstract class AP {
    * A static constructor should be implemented depending on the final design of the automaton
    */
 
-  public static State getElemFromSet(Set<State> q, State o) {
-    // TODO ASK
-    if (q.contains(o)) {
-      return o;
-    }
-    return null;
-  }
-
   public Set<State> final_states() {
     return finalStates;
   }
@@ -70,7 +62,6 @@ public abstract class AP {
       String[] aux;
       String nt;
       Character tc, tp;
-      Boolean found;
       State in, fin, from, to;
       Quintuple<State, Character, Character, String, State> auxTransition;
 
@@ -84,8 +75,6 @@ public abstract class AP {
       Matcher matTransition;
 
       while (line != null) {
-
-        found = false;
 
         matInitalState = initialState.matcher(line);
 
