@@ -10,6 +10,7 @@ public final class DFAPila extends AP {
   private Object nroStates[];
   private Stack<Character> stack; // the stack of the automaton
   private Boolean emptyStackEnd;
+  private Boolean isDeterministic;
   private State currentState;
 
   /**
@@ -47,6 +48,8 @@ public final class DFAPila extends AP {
     nroStates = states.toArray();
     stack = new Stack<Character>();
     stack.push(Initial); // insert the mark in the stack
+    isDeterministic = deterministic;
+    emptyStackEnd = emptyStack;
     if (!rep_ok(deterministic, emptyStack)) {
       throw new IllegalArgumentException();
     }
@@ -89,8 +92,7 @@ public final class DFAPila extends AP {
   }
 
   @Override
-  public boolean accepts(String string, boolean end) {
-    emptyStackEnd = end;
+  public boolean accepts(String string) {
     currentState = this.initial;
     Character currentCharacter;
     State auxState = null;
