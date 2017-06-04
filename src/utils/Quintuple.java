@@ -134,6 +134,42 @@ public class Quintuple<A, B, C, D, E> {
     return true;
   }
 
+  public boolean firstThreeEquals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    Quintuple<A, B, C, D, E> other = (Quintuple<A, B, C, D, E>) obj;
+    if (first == null) {
+      if (other.first != null) {
+        return false;
+      }
+    } else if (!first.equals(other.first)) {
+      return false;
+    }
+    if (second == null) {
+      if (other.second != null) {
+        return false;
+      } else {
+      }
+    } else if (!second.equals(other.second)) {
+      return false;
+    }
+    if (third == null) {
+      if (other.third != null) {
+        return false;
+      }
+    } else if (!third.equals(other.third)) {
+      return false;
+    }
+    return true;
+  }
+
   public String toString() {
     return "(" + first.toString() + "," + second.toString() + "," + third.toString() + ","
         + fourth.toString() + "," + fifth().toString() + ")";
