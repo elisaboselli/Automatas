@@ -181,9 +181,11 @@ public final class DFAPila extends AP {
   public void report() {
     System.out.println("\n\nDAF Pila:");
     System.out.println("\nInitial state: " + initial.toString());
-    System.out.print("\nFinal states: ");
-    for (State s : finalStates) {
-      System.out.print(s.toString() + ',');
+    if (!finalStates.isEmpty()) {
+      System.out.print("\nFinal states: ");
+      for (State s : finalStates) {
+        System.out.print(s.toString() + ',');
+      }
     }
     System.out.println("\n");
     System.out.print("All states: ");
@@ -206,11 +208,9 @@ public final class DFAPila extends AP {
       System.out.println("        " + t.toString());
     }
 
-    if (finalStates.isEmpty()) {
-      emptyStackEnd = true;
+    if (emptyStackEnd) {
       System.out.println("\nSe asume que el autómata terminará por pila vacia.");
     } else {
-      emptyStackEnd = false;
       System.out.println("\nSe asume que el autómata terminará por estado final.");
     }
   }
