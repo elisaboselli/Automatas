@@ -103,6 +103,8 @@ public final class NFAPila extends AP {
       if (possibleTransitions.isEmpty()) {
         return false;
       } else {
+        // Revisar esto:
+        // Determinar casos en los que debo avanzar en la cadena y cuales no.
         for (Quintuple<State, Character, Character, String, State> transition : possibleTransitions) {
           matCapitals = CAPITALS.matcher(transition.fourth());
           if (matCapitals.matches()) {
@@ -114,6 +116,8 @@ public final class NFAPila extends AP {
           }
 
         }
+        // Revisar esto:
+        // Esta bien la recursividad asi?
         for (Triplet<State, String, Stack<Character>> step : futureSteps) {
           initial = step.first();
           stack = step.third();
@@ -121,6 +125,8 @@ public final class NFAPila extends AP {
         }
       }
     } else {
+      // Revisar esto:
+      // Acepta tambien por ambos casos?
       if ((emptyStackEnd && stack.peek().equals(Initial))
           || (!emptyStackEnd && currentState.inSet(finalStates))) {
         return true;
@@ -129,6 +135,8 @@ public final class NFAPila extends AP {
       }
     }
 
+    // Revisar esto:
+    // Es necesario?
     if (!stack.peek().equals(Initial)) {
       System.out.println("Emptying the stack");
       Quintuple<State, Character, Character, String, State> est = emptyStackTransition(currentState);
@@ -174,9 +182,11 @@ public final class NFAPila extends AP {
   public void report() {
     System.out.println("\n\nNFA Pila:");
     System.out.println("\nInitial state: " + initial.toString());
-    System.out.print("\nFinal states: ");
-    for (State s : finalStates) {
-      System.out.print(s.toString() + ',');
+    if (!finalStates.isEmpty()) {
+      System.out.print("\nFinal states: ");
+      for (State s : finalStates) {
+        System.out.print(s.toString() + ',');
+      }
     }
     System.out.println("\n");
     System.out.print("All states: ");
@@ -199,11 +209,9 @@ public final class NFAPila extends AP {
       System.out.println("        " + t.toString());
     }
 
-    if (finalStates.isEmpty()) {
-      emptyStackEnd = true;
+    if (emptyStackEnd) {
       System.out.println("\nSe asume que el autómata terminará por pila vacia.");
     } else {
-      emptyStackEnd = false;
       System.out.println("\nSe asume que el autómata terminará por estado final.");
     }
   }
