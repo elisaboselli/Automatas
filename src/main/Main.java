@@ -1,6 +1,7 @@
 package main;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
@@ -28,28 +29,59 @@ public class Main {
     System.out.println("//--------------------------------------------------//");
 
     int op = displayMenu();
-    while (op != 5) {
+    while (op != 8) {
       switch (op) {
       case 1:
         deterministic = true;
         dfa = loadDFAPila();
+
       case 2:
         deterministic = false;
         nfa = loadNFAPila();
+
       case 3:
         if (deterministic) {
-          dfa.report();
+          if (dfa != null) {
+            dfa.report();
+          } else {
+            System.out.println("There is not deterministic automaton loaded.");
+          }
         } else {
-          nfa.report();
+          if (nfa != null) {
+            nfa.report();
+          } else {
+            System.out.println("There is not non-deterministic automaton loaded.");
+          }
         }
+
       case 4:
+        // Implement
+
+      case 5:
+        // Implement
+
+      case 6:
+        // Implement
+
+      case 7:
         str = getWord();
         if (deterministic) {
-          tryDFAPila(dfa, str);
+          if (dfa != null) {
+            tryDFAPila(dfa, str);
+          } else {
+            System.out.println("There is not deterministic automaton loaded.");
+          }
+
         } else {
-          tryNFAPila(nfa, str);
+          if (nfa != null) {
+            tryNFAPila(nfa, str);
+          } else {
+            System.out.println("There is not non-deterministic automaton loaded.");
+          }
+
         }
       }
+      waitUser();
       op = displayMenu();
     }
   }
@@ -60,16 +92,32 @@ public class Main {
     System.out.println("1 - Load finite deterministic stack automaton from dot");
     System.out.println("2 - Load finite non-deterministic stack automaton from grammar");
     System.out.println("3 - Show current automaton");
-    System.out.println("4 - Try word in the automaton");
-    System.out.println("5 - Exit");
+    System.out.println("4 - Switch current automaton");
+    System.out.println("5 - Switch automaton end");
+    System.out.println("6 - Export automaton to dot");
+    System.out.println("7 - Try word in the automaton");
+    System.out.println("8 - Exit");
     System.out.println("\n");
     int aux = scan.nextInt();
-    while (aux < 0 || aux > 4) {
+    while (aux < 0 || aux > 8) {
       System.out.println("Please enter a valid option");
       aux = scan.nextInt();
     }
     scan.close();
     return aux;
+  }
+
+  private static void waitUser() {
+    Scanner scan = new Scanner(System.in);
+    System.out.println("Press enter to continue");
+    scan.nextLine();
+    scan.close();
+    try {
+      Runtime.getRuntime().exec("clear");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
   }
 
   private static DFAPila loadDFAPila() {
