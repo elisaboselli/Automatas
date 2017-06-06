@@ -105,7 +105,7 @@ public class Main {
 
     NFAPila atm = new NFAPila(states, alphabet, stackAlphabet, transitions, stackInitial, initial,
         finalStates, deterministic, emptyStackEnd);
-    atm.from_dot(file);
+    atm.from_gram(file);
     if (!atm.rep_ok()) {
       throw new IllegalArgumentException(
           "The built automaton does not meet the requested conditions.");
