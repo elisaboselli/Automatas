@@ -14,7 +14,8 @@ import automata.State;
 public class Main {
 
   static boolean deterministic;
-  static boolean emptyStackEnd = true;
+  static boolean emptyStackEnd;
+  static Scanner scan = new Scanner(System.in);
 
   public static void main(String[] args) {
 
@@ -32,14 +33,19 @@ public class Main {
     while (op != 8) {
       switch (op) {
       case 1:
+        // Load DFA
         deterministic = true;
         dfa = loadDFAPila();
+        emptyStackEnd = dfa.getAutomatonEnd();
 
       case 2:
+        // Load NFA
         deterministic = false;
         nfa = loadNFAPila();
+        emptyStackEnd = nfa.getAutomatonEnd();
 
       case 3:
+        // Show automaton
         if (deterministic) {
           if (dfa != null) {
             dfa.report();
@@ -55,39 +61,92 @@ public class Main {
         }
 
       case 4:
-        // Implement
-
-      case 5:
-        // Implement
-
-      case 6:
-        // Implement
-
-      case 7:
-        str = getWord();
+        // Switch automaton
         if (deterministic) {
-          if (dfa != null) {
-            tryDFAPila(dfa, str);
-          } else {
-            System.out.println("There is not deterministic automaton loaded.");
-          }
-
-        } else {
           if (nfa != null) {
-            tryNFAPila(nfa, str);
+            deterministic = false;
+            System.out.println("Switch to non-deterministic automaton.");
           } else {
             System.out.println("There is not non-deterministic automaton loaded.");
           }
+        } else {
+          if (dfa != null) {
+            deterministic = true;
+            System.out.println("Switch to deterministic automaton.");
+          } else {
+            System.out.println("There is not deterministic automaton loaded.");
+          }
+        }
 
+      case 5:
+        // Switch automaton end
+        if (deterministic) {
+          if (emptyStackEnd) {
+            System.out.println("Switch dfa from end by empty stack to end by final state.");
+          } else {
+            System.out.println("Switch dfa from end by final to end by empty stack.");
+          }
+          dfa.switchEnd();
+          emptyStackEnd = dfa.getAutomatonEnd();
+
+        } else {
+          if (emptyStackEnd) {
+            System.out.println("Switch dfa from end by empty stack to end by final state.");
+          } else {
+            System.out.println("Switch dfa from end by final to end by empty stack.");
+          }
+          // Implement switch
+        }
+
+      case 6:
+        // Export automaton to dot
+        if (deterministic) {
+          if (dfa != null) {
+            System.out.println("Deterministic automaton to dot:");
+            System.out.println(dfa.to_dot());
+          } else {
+            System.out.println("There is not deterministic automaton loaded.");
+          }
+        } else {
+          if (nfa != null) {
+            System.out.println("Non-deterministic automaton to dot.");
+            System.out.println(nfa.to_dot());
+          } else {
+            System.out.println("There is not non-deterministic automaton loaded.");
+          }
+        }
+
+      case 7:
+        // Try word
+        if (dfa != null || nfa != null) {
+          str = getWord();
+          if (deterministic) {
+            if (dfa != null) {
+              tryDFAPila(dfa, str);
+            } else {
+              System.out.println("There is not deterministic automaton loaded.");
+            }
+
+          } else {
+            if (nfa != null) {
+              tryNFAPila(nfa, str);
+            } else {
+              System.out.println("There is not non-deterministic automaton loaded.");
+            }
+          }
+        } else {
+          System.out.println("Please, load an automaton before trying to test a word");
         }
       }
       waitUser();
       op = displayMenu();
     }
+    scan.close();
+    System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    System.out.println("Bye ...");
   }
 
   private static int displayMenu() {
-    Scanner scan = new Scanner(System.in);
     System.out.println("Enter the desired option");
     System.out.println("1 - Load finite deterministic stack automaton from dot");
     System.out.println("2 - Load finite non-deterministic stack automaton from grammar");
@@ -97,21 +156,19 @@ public class Main {
     System.out.println("6 - Export automaton to dot");
     System.out.println("7 - Try word in the automaton");
     System.out.println("8 - Exit");
-    System.out.println("\n");
     int aux = scan.nextInt();
+    scan.nextLine();
     while (aux < 0 || aux > 8) {
       System.out.println("Please enter a valid option");
       aux = scan.nextInt();
     }
-    scan.close();
     return aux;
   }
 
   private static void waitUser() {
-    Scanner scan = new Scanner(System.in);
-    System.out.println("Press enter to continue");
+    System.out.println("Press enter to continue\n");
     scan.nextLine();
-    scan.close();
+    System.out.println("\n\n\n\n\n\n");
     try {
       Runtime.getRuntime().exec("clear");
     } catch (IOException e) {
@@ -131,7 +188,7 @@ public class Main {
     Set<State> finalStates = new HashSet<State>();
 
     DFAPila atm = new DFAPila(states, alphabet, stackAlphabet, transitions, stackInitial, initial,
-        finalStates, deterministic, emptyStackEnd);
+        finalStates, deterministic, finalStates.isEmpty());
     atm.from_dot(file);
     if (!atm.rep_ok()) {
       throw new IllegalArgumentException(
@@ -152,7 +209,7 @@ public class Main {
     Set<State> finalStates = new HashSet<State>();
 
     NFAPila atm = new NFAPila(states, alphabet, stackAlphabet, transitions, stackInitial, initial,
-        finalStates, deterministic, emptyStackEnd);
+        finalStates, deterministic, finalStates.isEmpty());
     atm.from_gram(file);
     if (!atm.rep_ok()) {
       throw new IllegalArgumentException(
@@ -162,7 +219,6 @@ public class Main {
   }
 
   private static File loadFile() {
-    Scanner scan = new Scanner(System.in);
     System.out.print("Enter the name of the ");
     if (deterministic) {
       System.out.println("automaton dot file");
@@ -175,19 +231,16 @@ public class Main {
       System.out.println("Please enter a valid file name");
       fileName = scan.nextLine();
     }
-    scan.close();
     return file;
   }
 
   private static String getWord() {
-    Scanner scan = new Scanner(System.in);
     System.out.println("Enter the string to test");
     String str = scan.nextLine();
     while (str.isEmpty()) {
       System.out.println("Please enter a valid string");
       str = scan.nextLine();
     }
-    scan.close();
     return str;
   }
 
