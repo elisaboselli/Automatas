@@ -37,12 +37,14 @@ public class Main {
         deterministic = true;
         dfa = loadDFAPila();
         emptyStackEnd = dfa.getAutomatonEnd();
+        break;
 
       case 2:
         // Load NFA
         deterministic = false;
         nfa = loadNFAPila();
         emptyStackEnd = nfa.getAutomatonEnd();
+        break;
 
       case 3:
         // Show automaton
@@ -59,6 +61,7 @@ public class Main {
             System.out.println("There is not non-deterministic automaton loaded.");
           }
         }
+        break;
 
       case 4:
         // Switch automaton
@@ -77,6 +80,7 @@ public class Main {
             System.out.println("There is not deterministic automaton loaded.");
           }
         }
+        break;
 
       case 5:
         // Switch automaton end
@@ -97,6 +101,7 @@ public class Main {
           }
           // Implement switch
         }
+        break;
 
       case 6:
         // Export automaton to dot
@@ -115,6 +120,7 @@ public class Main {
             System.out.println("There is not non-deterministic automaton loaded.");
           }
         }
+        break;
 
       case 7:
         // Try word
@@ -137,6 +143,7 @@ public class Main {
         } else {
           System.out.println("Please, load an automaton before trying to test a word");
         }
+        break;
       }
       waitUser();
       op = displayMenu();
@@ -161,6 +168,7 @@ public class Main {
     while (aux < 0 || aux > 8) {
       System.out.println("Please enter a valid option");
       aux = scan.nextInt();
+      scan.nextLine();
     }
     return aux;
   }
@@ -168,7 +176,7 @@ public class Main {
   private static void waitUser() {
     System.out.println("Press enter to continue\n");
     scan.nextLine();
-    System.out.println("\n\n\n\n\n\n");
+    System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     try {
       Runtime.getRuntime().exec("clear");
     } catch (IOException e) {
