@@ -191,6 +191,11 @@ public abstract class AP {
       Pattern production = Pattern.compile("^[A-Z]+(\\s)*(->).*");
       Matcher matProduction;
 
+      initial = new State("Q0");
+      states.add(initial);
+      State s = new State("Q1");
+      states.add(s);
+
       while (line != null) {
 
         matGrammatDefinition = grammarDefinition.matcher(line);
@@ -209,13 +214,14 @@ public abstract class AP {
             stackAlphabet.add(terminals[i].trim().charAt(0));
           }
 
-          stackInitial = aux[9].trim().charAt(0);
+          Character gramInitial = aux[9].trim().charAt(0);
+          stackInitial = Initial;
           stackAlphabet.add(stackInitial);
 
-          initial = new State("Q");
-          states.add(initial);
           auxTransition = new Quintuple<State, Character, Character, String, State>(initial,
-              Lambda, stackInitial, initial.toString() + stackInitial, initial);
+              Lambda, stackInitial, gramInitial.toString() + stackInitial, s);
+          transitions.add(auxTransition);
+          System.out.println("Transition generated: " + auxTransition.toString());
 
           System.out.print("    Alphabet: ");
           for (Character c : alphabet) {
@@ -230,8 +236,8 @@ public abstract class AP {
           System.out.println("");
 
           for (Character c : alphabet) {
-            auxTransition = new Quintuple<State, Character, Character, String, State>(initial, c,
-                c, Lambda.toString(), initial);
+            auxTransition = new Quintuple<State, Character, Character, String, State>(s, c, c,
+                Lambda.toString(), s);
             transitions.add(auxTransition);
             System.out.println("Transition generated: " + auxTransition.toString());
           }
@@ -246,8 +252,8 @@ public abstract class AP {
 
           for (int i = 1; i < aux.length; i++) {
 
-            auxTransition = new Quintuple<State, Character, Character, String, State>(initial,
-                Lambda, aux[0].trim().charAt(0), aux[i], initial);
+            auxTransition = new Quintuple<State, Character, Character, String, State>(s, Lambda,
+                aux[0].trim().charAt(0), aux[i].trim(), s);
             transitions.add(auxTransition);
             System.out.println("        " + auxTransition.toString());
 
