@@ -20,6 +20,8 @@ public final class NFAPila extends AP {
   private final Pattern CAPITALS = Pattern.compile("^[A-Z].*");
   private Matcher matCapitals;
   private Integer v = 0;
+  private Integer d = -1;
+  private final Integer MAX = 5;
 
   /**
    * Constructor of the class - returns a NFAPila object
@@ -89,7 +91,11 @@ public final class NFAPila extends AP {
 
   @Override
   public boolean accepts(String string) {
-
+    d++;
+    if (d == MAX) {
+      d--;
+      return false;
+    }
     int strLength = string.length();
 
     if (strLength > 0) {
@@ -98,38 +104,48 @@ public final class NFAPila extends AP {
       Set<Quintuple<State, Character, Character, String, State>> possibleTransitions;
       List<Triplet<State, String, Stack<Character>>> futureSteps = new LinkedList<Triplet<State, String, Stack<Character>>>();
 
-      System.out.println("Processing ...");
+      // System.out.println("Processing ...");
       currentCharacter = string.charAt(0);
       possibleTransitions = delta(currentState, currentCharacter);
       if (possibleTransitions.isEmpty()) {
+        d--;
         return false;
       } else {
         // Revisar esto:
         // Determinar casos en los que debo avanzar en la cadena y cuales no.
         for (Quintuple<State, Character, Character, String, State> transition : possibleTransitions) {
           matCapitals = CAPITALS.matcher(transition.fourth());
-          if (matCapitals.matches()) {
+          if (matCapitals.matches() || transition.third() == currentCharacter
+              || transition.fourth().charAt(0) == currentCharacter) {
             futureSteps.add(new Triplet<State, String, Stack<Character>>(transition.fifth(),
                 string, applyTransitionToStack(stack, transition.fourth())));
-          } else {
-            futureSteps.add(new Triplet<State, String, Stack<Character>>(transition.fifth(), string
-                .substring(1, strLength), applyTransitionToStack(stack, transition.fourth())));
           }
+          // else {
+          // if (transition.fourth().charAt(0) == (currentCharacter))
+          // futureSteps.add(new Triplet<State, String, Stack<Character>>(transition.fifth(),
+          // string.substring(1, strLength),
+          // applyTransitionToStack(stack, transition.fourth())));
+          // }
 
         }
         // Revisar esto:
         // Esta bien la recursividad asi?
+        boolean accpt;
         for (Triplet<State, String, Stack<Character>> step : futureSteps) {
           initial = step.first();
           stack = step.third();
-          return accepts(step.second());
+          accpt = accepts(step.second());
+          if (accpt) {
+            return accpt;
+          }
         }
       }
     } else {
       // Revisar esto:
       // Acepta tambien por ambos casos?
-      if ((emptyStackEnd && stack.peek().equals(Initial))
-          || (!emptyStackEnd && currentState.inSet(finalStates))) {
+      if (string.length() == 0
+          && ((emptyStackEnd && stack.peek().equals(Initial)) || (!emptyStackEnd && currentState
+              .inSet(finalStates)))) {
         return true;
       } else {
         return false;
@@ -138,24 +154,25 @@ public final class NFAPila extends AP {
 
     // Revisar esto:
     // Es necesario?
-    if (!stack.peek().equals(Initial)) {
-      System.out.println("Emptying the stack");
-      Quintuple<State, Character, Character, String, State> est = emptyStackTransition(currentState);
-      while (est != null && !stack.peek().equals(Initial)) {
-        System.out.print(est.toString() + " -> Stack:[");
-        stack.pop();
-        currentState = est.fifth();
-        Object[] auxArray = stack.toArray();
-        for (int i = 0; i < auxArray.length; i++) {
-          System.out.print(auxArray[i]);
-          if (i < auxArray.length - 1) {
-            System.out.print(",");
-          }
-        }
-        System.out.println("]");
-        est = emptyStackTransition(currentState);
-      }
-    }
+    // if (!stack.peek().equals(Initial)) {
+    // System.out.println("Emptying the stack");
+    // Quintuple<State, Character, Character, String, State> est =
+    // emptyStackTransition(currentState);
+    // while (est != null && !stack.peek().equals(Initial)) {
+    // System.out.print(est.toString() + " -> Stack:[");
+    // stack.pop();
+    // currentState = est.fifth();
+    // Object[] auxArray = stack.toArray();
+    // for (int i = 0; i < auxArray.length; i++) {
+    // System.out.print(auxArray[i]);
+    // if (i < auxArray.length - 1) {
+    // System.out.print(",");
+    // }
+    // }
+    // System.out.println("]");
+    // est = emptyStackTransition(currentState);
+    // }
+    // }
     return false;
   }
 
@@ -218,7 +235,6 @@ public final class NFAPila extends AP {
         System.out.print(s.toString() + ',');
       }
     }
-    System.out.println("\n");
     System.out.print("All states: ");
     for (State s : states) {
       System.out.print(s.toString() + ',');
@@ -248,7 +264,7 @@ public final class NFAPila extends AP {
 
   private Stack<Character> applyTransitionToStack(Stack<Character> stk, String str) {
     Stack<Character> result = (Stack<Character>) stk.clone();
-    for (int i = str.length() - 1; i > 0; i--) {
+    for (int i = str.length() - 1; i >= 0; i--) {
       result.push(str.charAt(i));
     }
     return result;
