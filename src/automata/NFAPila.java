@@ -19,6 +19,7 @@ public final class NFAPila extends AP {
   private State currentState;
   private final Pattern CAPITALS = Pattern.compile("^[A-Z].*");
   private Matcher matCapitals;
+  private Integer v = 0;
 
   /**
    * Constructor of the class - returns a NFAPila object
@@ -158,6 +159,35 @@ public final class NFAPila extends AP {
     return false;
   }
 
+  public void switchEnd() {
+    State f = new State("FF" + v.toString());
+    v++;
+    states.add(f);
+    finalStates.add(f);
+    if (emptyStackEnd) {
+      // switch to end by final state
+      Quintuple<State, Character, Character, String, State> newTrans;
+      for (State s : states) {
+        newTrans = new Quintuple<State, Character, Character, String, State>(s, Lambda, Initial,
+            Lambda.toString(), f);
+        transitions.add(newTrans);
+      }
+      emptyStackEnd = false;
+    } else {
+      // switch to end by empty stack
+      Quintuple<State, Character, Character, String, State> newTrans;
+      for (State s : finalStates) {
+        newTrans = new Quintuple<State, Character, Character, String, State>(s, Lambda, Joker,
+            Lambda.toString(), f);
+        transitions.add(newTrans);
+      }
+      newTrans = new Quintuple<State, Character, Character, String, State>(f, Lambda, Joker,
+          Lambda.toString(), f);
+      transitions.add(newTrans);
+      emptyStackEnd = false;
+    }
+  }
+
   public boolean rep_ok() {
     // Check that all the states are reachable
     boolean isReachable;
@@ -210,9 +240,9 @@ public final class NFAPila extends AP {
     }
 
     if (emptyStackEnd) {
-      System.out.println("\nSe asume que el autómata terminará por pila vacia.");
+      System.out.println("\nIt is assumed that the automaton will end by empty stack.");
     } else {
-      System.out.println("\nSe asume que el autómata terminará por estado final.");
+      System.out.println("\nIt is assumed that the automaton will end by final state.");
     }
   }
 
@@ -231,5 +261,13 @@ public final class NFAPila extends AP {
       }
     }
     return null;
+  }
+
+  public boolean getAutomatonEnd() {
+    return emptyStackEnd;
+  }
+
+  public boolean getDeterministic() {
+    return isDeterministic;
   }
 }
