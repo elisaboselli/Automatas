@@ -6,5 +6,4 @@ q1->q1 [label="a/a/aa"];
 q1->q2 [label="b/a/_"];
 q2->q2 [label="b/b/_"];
 q2->q2 [label="_/@/_"]
-q2[shape=doublecircle];
 }
