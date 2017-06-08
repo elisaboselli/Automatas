@@ -1,5 +1,6 @@
 package automata;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
@@ -34,8 +35,8 @@ public final class DFAPila extends AP {
    */
   public DFAPila(Set<State> states, Set<Character> alphabet, Set<Character> stackAlphabet,
       Set<Quintuple<State, Character, Character, String, State>> transitions,
-      Character stackInitial, State initial, Set<State> final_states, boolean deterministic,
-      boolean emptyStack) throws IllegalArgumentException {
+      Character stackInitial, State initial, Set<State> final_states, boolean deterministic)
+      throws IllegalArgumentException {
     this.states = states;
     this.alphabet = alphabet;
     this.stackAlphabet = stackAlphabet;
@@ -48,11 +49,14 @@ public final class DFAPila extends AP {
     stack = new Stack<Character>();
     stack.push(Initial); // insert the mark in the stack
     isDeterministic = deterministic;
-    emptyStackEnd = emptyStack;
     if (!rep_ok()) {
       throw new IllegalArgumentException();
     }
     System.out.println("Is a DFA Pila");
+  }
+
+  public void setEnd(boolean ese) {
+    emptyStackEnd = ese;
   }
 
   @Override
@@ -135,14 +139,16 @@ public final class DFAPila extends AP {
     State f = new State("FF" + v.toString());
     v++;
     states.add(f);
-    finalStates.add(f);
     if (emptyStackEnd) {
       // switch to end by final state
+      finalStates.add(f);
       Quintuple<State, Character, Character, String, State> newTrans;
       for (State s : states) {
-        newTrans = new Quintuple<State, Character, Character, String, State>(s, Lambda, Initial,
-            Lambda.toString(), f);
-        transitions.add(newTrans);
+        if (!s.equals(f)) {
+          newTrans = new Quintuple<State, Character, Character, String, State>(s, Lambda, Initial,
+              Lambda.toString(), f);
+          transitions.add(newTrans);
+        }
       }
       emptyStackEnd = false;
     } else {
@@ -153,6 +159,7 @@ public final class DFAPila extends AP {
             Lambda.toString(), f);
         transitions.add(newTrans);
       }
+      finalStates = new HashSet<State>();
       newTrans = new Quintuple<State, Character, Character, String, State>(f, Lambda, Joker,
           Lambda.toString(), f);
       transitions.add(newTrans);
@@ -247,7 +254,8 @@ public final class DFAPila extends AP {
 
   private Quintuple<State, Character, Character, String, State> emptyStackTransition(State state) {
     for (Quintuple<State, Character, Character, String, State> transition : transitions) {
-      if (transition.first().equals(state) && transition.third().equals(Joker) && !stack.isEmpty()) {
+      if (transition.first().equals(state) && transition.fourth().equals(Lambda.toString())
+          && !stack.isEmpty()) {
         return transition;
       }
     }
