@@ -6,9 +6,12 @@ import java.util.Stack;
 
 import utils.Quintuple;
 
+/**
+ * @author Elisa Boselli
+ *
+ */
 public final class DFAPila extends AP {
 
-  // private Stack<Character> stack; // the stack of the automaton
   private Boolean emptyStackEnd;
   private Boolean isDeterministic;
   private State currentState;
@@ -55,10 +58,27 @@ public final class DFAPila extends AP {
     System.out.println("Is a DFA Pila");
   }
 
+  /**
+   * Set the automaton end.
+   * 
+   * @param ese
+   *          - Represents the two possible terminations, true by empty stack and false by final
+   *          state.
+   */
   public void setEnd(boolean ese) {
     emptyStackEnd = ese;
   }
 
+  /**
+   * Implement abstract method delta. Find the possible transition from a state with a certain
+   * current character, if any.
+   * 
+   * @param from
+   *          - Current state.
+   * @param c
+   *          - Current character.
+   * @return (State) Transition application.
+   */
   @Override
   public State delta(State from, Character c) {
     if (stack.isEmpty()) {
@@ -94,6 +114,13 @@ public final class DFAPila extends AP {
     return null;
   }
 
+  /**
+   * Implement abstract method accept. Determine if the automaton accepts a certain String.
+   * 
+   * @param string
+   *          - Word to be tried in the automaton.
+   * @return (Boolean) True if the word was accepted, otherwise false.
+   */
   @Override
   public boolean accepts(String string) {
     currentState = this.initial;
@@ -135,6 +162,10 @@ public final class DFAPila extends AP {
     return false;
   }
 
+  /**
+   * Change the automaton termination. From empty stack to final state and from final state to empty
+   * stack.
+   */
   public void switchEnd() {
     State f = new State("FF" + v.toString());
     v++;
@@ -167,6 +198,11 @@ public final class DFAPila extends AP {
     }
   }
 
+  /**
+   * RepOK method.
+   * 
+   * @return (Boolean) True if the automata was built correctly, otherwise false.
+   */
   public boolean rep_ok() {
 
     // If it comes from dot it is supposed to be deterministic.
@@ -215,6 +251,9 @@ public final class DFAPila extends AP {
     return true;
   }
 
+  /**
+   * Show printable representation of the automaton.
+   */
   public void report() {
     System.out.println("\n\nDAF Pila:");
     System.out.println("\nInitial state: " + initial.toString());
@@ -252,6 +291,13 @@ public final class DFAPila extends AP {
     }
   }
 
+  /**
+   * Look up for empty stack transitions.
+   * 
+   * @param state
+   *          - Current state.
+   * @return (Transition) The corresponding transition, if any.
+   */
   private Quintuple<State, Character, Character, String, State> emptyStackTransition(State state) {
     for (Quintuple<State, Character, Character, String, State> transition : transitions) {
       if (transition.first().equals(state) && transition.fourth().equals(Lambda.toString())
@@ -262,10 +308,20 @@ public final class DFAPila extends AP {
     return null;
   }
 
+  /**
+   * Get the automaton current termination.
+   *
+   * @return (Boolean) True if it is by empty stack, false if it is by final state.
+   */
   public boolean getAutomatonEnd() {
     return emptyStackEnd;
   }
 
+  /**
+   * Get the automaton current determinism.
+   *
+   * @return (Boolean) True if it is deterministic, otherwise false.
+   */
   public boolean getDeterministic() {
     return isDeterministic;
   }

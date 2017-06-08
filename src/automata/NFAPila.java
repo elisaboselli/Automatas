@@ -5,22 +5,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import utils.Quintuple;
 import utils.Triplet;
 
+/**
+ * @author Elisa Boselli
+ *
+ */
 public final class NFAPila extends AP {
 
-  // private Stack<Character> stack; // the stack of the automaton
   private Boolean emptyStackEnd;
   private Boolean isDeterministic;
   private State currentState;
-  private final Pattern CAPITALS = Pattern.compile("^[A-Z].*");
-  private Matcher matCapitals;
   private Integer v = 0;
-  private final Integer DEPHT = 30;
+  private final Integer DEPTH = 30;
 
   /**
    * Constructor of the class - returns a NFAPila object
@@ -63,17 +62,33 @@ public final class NFAPila extends AP {
     System.out.println("Is a NFA Pila");
   }
 
+  /**
+   * Set the automaton end.
+   * 
+   * @param ese
+   *          - Represents the two possible terminations, true by empty stack and false by final
+   *          state.
+   */
   public void setEnd(boolean ese) {
     emptyStackEnd = ese;
   }
 
+  /**
+   * Implement abstract method delta. Find all possible transitions from a state with a certain
+   * current character, if any.
+   * 
+   * @param from
+   *          - Current state.
+   * @param c
+   *          - Current character.
+   * @return (State's set) Transition applications.
+   */
   @Override
   public Set<Quintuple<State, Character, Character, String, State>> delta(State from, Character c) {
     if (stack.isEmpty()) {
       return null;
     }
     Character top = stack.peek();
-    Character aux;
     Set<Quintuple<State, Character, Character, String, State>> result = new HashSet<Quintuple<State, Character, Character, String, State>>();
 
     for (Quintuple<State, Character, Character, String, State> transition : transitions) {
@@ -86,14 +101,29 @@ public final class NFAPila extends AP {
     return result;
   }
 
+  /**
+   * Implement abstract method accept. Determine if the automaton accepts a certain String.
+   * 
+   * @param string
+   *          - Word to be tried in the automaton.
+   * @return (Boolean) True if the word was accepted, otherwise false.
+   */
   @Override
   public boolean accepts(String string) {
     System.out.println("Processing ...");
-    return dephtAccept(string, 0);
+    return depthAccept(string, 0);
   }
 
-  private boolean dephtAccept(String string, int d) {
-    if (d == DEPHT) {
+  /**
+   * Redefine the accept method with a depth
+   * 
+   * @param string
+   *          - Word to be tried in the automaton.
+   * @param int - Current depth.
+   * @return (Boolean) True if the word was accepted, otherwise false.
+   */
+  private boolean depthAccept(String string, int d) {
+    if (d == DEPTH) {
       return false;
     }
     int strLength = string.length();
@@ -150,7 +180,7 @@ public final class NFAPila extends AP {
     for (Triplet<State, String, Stack<Character>> step : futureSteps) {
       initial = step.first();
       stack = step.third();
-      accpt = dephtAccept(step.second(), d + 1);
+      accpt = depthAccept(step.second(), d + 1);
       if (accpt) {
         return accpt;
       }
@@ -158,6 +188,10 @@ public final class NFAPila extends AP {
     return accpt;
   }
 
+  /**
+   * Change the automaton termination. From empty stack to final state and from final state to empty
+   * stack.
+   */
   public void switchEnd() {
     State f = new State("FF" + v.toString());
     v++;
@@ -190,6 +224,11 @@ public final class NFAPila extends AP {
     }
   }
 
+  /**
+   * RepOK method.
+   * 
+   * @return (Boolean) True if the automata was built correctly, otherwise false.
+   */
   public boolean rep_ok() {
     // Check that all the states are reachable
     boolean isReachable;
@@ -211,6 +250,9 @@ public final class NFAPila extends AP {
     return true;
   }
 
+  /**
+   * Show printable representation of the automaton.
+   */
   public void report() {
     System.out.println("\n\nNFA Pila:");
     System.out.println("\nInitial state: " + initial.toString());
@@ -247,6 +289,17 @@ public final class NFAPila extends AP {
     }
   }
 
+  /**
+   * Apply a transition to a certain stack.
+   * 
+   * @param stk
+   *          - Current stack.
+   * @param str
+   *          - Current string (word).
+   * @param top
+   *          - Stack's top
+   * @return (Stack) New stack, copied from the first one, but with the transition applied.
+   */
   private Stack<Character> applyTransitionToStack(Stack<Character> stk, String str, Character top) {
     Stack<Character> result = (Stack<Character>) stk.clone();
     Character c;
@@ -263,6 +316,13 @@ public final class NFAPila extends AP {
     return result;
   }
 
+  /**
+   * Look up for empty stack transitions.
+   * 
+   * @param state
+   *          - Current state.
+   * @return (Transition) The corresponding transition, if any.
+   */
   private Quintuple<State, Character, Character, String, State> emptyStackTransition(State state) {
     for (Quintuple<State, Character, Character, String, State> transition : transitions) {
       if (transition.first().equals(state) && transition.second().equals(Lambda.toString())
@@ -273,10 +333,20 @@ public final class NFAPila extends AP {
     return null;
   }
 
+  /**
+   * Get the automaton current termination.
+   *
+   * @return (Boolean) True if it is by empty stack, false if it is by final state.
+   */
   public boolean getAutomatonEnd() {
     return emptyStackEnd;
   }
 
+  /**
+   * Get the automaton current determinism.
+   *
+   * @return (Boolean) True if it is deterministic, otherwise false.
+   */
   public boolean getDeterministic() {
     return isDeterministic;
   }

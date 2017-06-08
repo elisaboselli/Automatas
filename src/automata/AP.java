@@ -13,6 +13,10 @@ import java.util.regex.Pattern;
 
 import utils.Quintuple;
 
+/**
+ * @author Elisa Boselli
+ *
+ */
 public abstract class AP {
 
   public static final Character Lambda = '_';
@@ -29,26 +33,49 @@ public abstract class AP {
                                                                                     // function
   protected Set<State> finalStates;
 
-  /*
-   * A static constructor should be implemented depending on the final design of the automaton
+  /**
+   * Get the automaton's final states.
+   * 
+   * @return (State's set) automaton final states.
    */
-
   public Set<State> final_states() {
     return finalStates;
   }
 
+  /**
+   * Get the automaton's initial state.
+   * 
+   * @return (State) automaton initial states.
+   */
   public State initial_state() {
     return initial;
   }
 
+  /**
+   * Get the automaton's alphabet.
+   * 
+   * @return (Character's set) automaton alphabet.
+   */
   public Set<Character> alphabet() {
     return alphabet;
   }
 
+  /**
+   * Get the automaton's states.
+   * 
+   * @return (State's set) automaton states.
+   */
   public Set<State> states() {
     return states;
   }
 
+  /**
+   * Fill in the automaton with the information obtained in a dot file.
+   * 
+   * @param file
+   *          - Dot file from which the automaton information is obtained.
+   * @return (Boolean) False if the automaton has final states, otherwise true.
+   */
   public boolean from_dot(File file) {
     BufferedReader br = null;
     try {
@@ -149,6 +176,11 @@ public abstract class AP {
     return finalStates.isEmpty();
   }
 
+  /**
+   * Generate the dot file from the automaton.
+   * 
+   * @return (String) Printable representation of the generated dot file.
+   */
   public final String to_dot() {
     // assert rep_ok();
     char quotes = '"';
@@ -173,6 +205,13 @@ public abstract class AP {
     return aux;
   }
 
+  /**
+   * Fill in the automaton with the information obtained in a gram file.
+   * 
+   * @param file
+   *          - Gram file from which the automaton information is obtained.
+   * @return (Boolean) False if the automaton has final states, otherwise true.
+   */
   public boolean from_gram(File file) {
     BufferedReader br = null;
     try {
@@ -275,10 +314,23 @@ public abstract class AP {
   }
 
   /**
-   * this methods should be implemented in DFAPila
+   * Determine if the automaton accepts a certain String.
+   * 
+   * @param string
+   *          - Word to be tried in the automaton.
+   * @return (Boolean) True if the word was accepted, otherwise false.
    */
   public abstract boolean accepts(String string);
 
+  /**
+   * Find all possible transitions from a state with a certain current character.
+   * 
+   * @param from
+   *          - Current state.
+   * @param c
+   *          - Current character.
+   * @return (Object) Possibles transitions.
+   */
   public abstract Object delta(State from, Character c);
 
 }
