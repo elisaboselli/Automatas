@@ -11,12 +11,22 @@ import automata.DFAPila;
 import automata.NFAPila;
 import automata.State;
 
+/**
+ * @author Elisa Boselli
+ *
+ */
+
 public class Main {
 
   static boolean deterministic;
   static boolean emptyStackEnd;
   static Scanner scan = new Scanner(System.in);
 
+  /**
+   * Main method.
+   * 
+   * @param args
+   */
   public static void main(String[] args) {
 
     DFAPila dfa = null;
@@ -149,6 +159,11 @@ public class Main {
     System.out.println("Bye ...");
   }
 
+  /**
+   * Display a menu and return the user-entered response.
+   * 
+   * @return (int) User response.
+   */
   private static int displayMenu() {
     System.out.println("Enter the desired option");
     System.out.println("1 - Load finite deterministic stack automaton from dot");
@@ -169,6 +184,10 @@ public class Main {
     return aux;
   }
 
+  /**
+   * Wait for the user to press a key.
+   * 
+   */
   private static void waitUser() {
     System.out.println("Press enter to continue\n");
     scan.nextLine();
@@ -181,6 +200,11 @@ public class Main {
 
   }
 
+  /**
+   * Load a Deterministic finite automaton.
+   * 
+   * @return (DFAPila) Deterministic finite automaton.
+   */
   private static DFAPila loadDFAPila() {
     File file = loadFile();
     State initial = null;
@@ -204,6 +228,11 @@ public class Main {
 
   }
 
+  /**
+   * Load a Non Deterministic finite automaton.
+   * 
+   * @return (NFAPila) Non Deterministic finite automaton.
+   */
   private static NFAPila loadNFAPila() {
     File file = loadFile();
     State initial = null;
@@ -226,6 +255,11 @@ public class Main {
     return atm;
   }
 
+  /**
+   * Prompt the user for a file, receive its response and validate it.
+   * 
+   * @return (File) File from which the automaton will be generated.
+   */
   private static File loadFile() {
     System.out.print("Enter the name of the ");
     if (deterministic) {
@@ -242,6 +276,11 @@ public class Main {
     return file;
   }
 
+  /**
+   * Request the user for a word, receive its answer and validate it.
+   * 
+   * @return (String) Word entered by the user.
+   */
   private static String getWord() {
     System.out.println("Enter the string to test");
     String str = scan.nextLine();
@@ -252,6 +291,14 @@ public class Main {
     return str;
   }
 
+  /**
+   * Try a word in the deterministic finite automaton loaded.
+   * 
+   * @param dfa
+   *          - deterministic finite automaton loaded.
+   * @param str
+   *          - word to try.
+   */
   private static void tryDFAPila(DFAPila dfa, String str) {
     Boolean result = dfa.accepts(str);
 
@@ -268,6 +315,14 @@ public class Main {
     }
   }
 
+  /**
+   * Try a word in the non-deterministic finite automaton loaded.
+   * 
+   * @param dfa
+   *          - non deterministic finite automaton loaded.
+   * @param str
+   *          - word to try.
+   */
   private static void tryNFAPila(NFAPila nfa, String str) {
     Boolean result = nfa.accepts(str);
 
