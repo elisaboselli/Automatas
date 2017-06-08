@@ -34,16 +34,12 @@ public class Main {
       switch (op) {
       case 1:
         // Load DFA
-        deterministic = true;
         dfa = loadDFAPila();
-        emptyStackEnd = dfa.getAutomatonEnd();
         break;
 
       case 2:
         // Load NFA
-        deterministic = false;
         nfa = loadNFAPila();
-        emptyStackEnd = nfa.getAutomatonEnd();
         break;
 
       case 3:
@@ -195,12 +191,14 @@ public class Main {
     Set<Quintuple<State, Character, Character, String, State>> transitions = new HashSet<Quintuple<State, Character, Character, String, State>>();
     Set<State> finalStates = new HashSet<State>();
 
+    deterministic = true;
     DFAPila atm = new DFAPila(states, alphabet, stackAlphabet, transitions, stackInitial, initial,
-        finalStates, deterministic, finalStates.isEmpty());
-    atm.from_dot(file);
+        finalStates, deterministic);
+    emptyStackEnd = atm.from_dot(file);
+    atm.setEnd(emptyStackEnd);
     if (!atm.rep_ok()) {
-      throw new IllegalArgumentException(
-          "The built automaton does not meet the requested conditions.");
+      atm = null;
+      System.out.println("Automaton deleted");
     }
     return atm;
 
@@ -216,12 +214,14 @@ public class Main {
     Set<Quintuple<State, Character, Character, String, State>> transitions = new HashSet<Quintuple<State, Character, Character, String, State>>();
     Set<State> finalStates = new HashSet<State>();
 
+    deterministic = false;
     NFAPila atm = new NFAPila(states, alphabet, stackAlphabet, transitions, stackInitial, initial,
-        finalStates, deterministic, finalStates.isEmpty());
-    atm.from_gram(file);
+        finalStates, deterministic);
+    emptyStackEnd = atm.from_gram(file);
+    atm.setEnd(emptyStackEnd);
     if (!atm.rep_ok()) {
-      throw new IllegalArgumentException(
-          "The built automaton does not meet the requested conditions.");
+      atm = null;
+      System.out.println("Automaton deleted");
     }
     return atm;
   }
