@@ -49,7 +49,7 @@ public abstract class AP {
     return states;
   }
 
-  public void from_dot(File file) {
+  public boolean from_dot(File file) {
     BufferedReader br = null;
     try {
       br = new BufferedReader(new FileReader(file));
@@ -146,6 +146,7 @@ public abstract class AP {
     }
     stackInitial = Initial;
     System.out.println("\n");
+    return finalStates.isEmpty();
   }
 
   public final String to_dot() {
@@ -172,7 +173,7 @@ public abstract class AP {
     return aux;
   }
 
-  public void from_gram(File file) {
+  public boolean from_gram(File file) {
     BufferedReader br = null;
     try {
       br = new BufferedReader(new FileReader(file));
@@ -270,6 +271,7 @@ public abstract class AP {
     }
     stackInitial = Initial;
     System.out.println("\n");
+    return finalStates.isEmpty();
   }
 
   /**
